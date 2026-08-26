@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Q-VEX Knowledge Graph Visualizer</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style type="text/css">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f7f9fc;
+        }
+        #header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 15px 25px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #container {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
+        #mynetwork {
+            flex-grow: 1;
+            height: 100%;
+            background-color: #ffffff;
+        }
+        #details {
+            width: 380px;
+            background-color: #f1f3f4;
+            border-left: 1px solid #dadce0;
+            padding: 20px;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #dadce0;
+            margin-bottom: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .legend-color {
+            width: 30px;
+            height: 4px;
+            margin-right: 10px;
+        }
+        h2 { margin-top: 0; color: #202124; }
+        h3 { color: #1a73e8; }
+        .node-info {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dadce0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .entity-tag {
+            display: inline-block;
+            background: #e8f0fe;
+            color: #1a73e8;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin: 3px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1 style="margin:0; font-size: 20px;">Q-VEX Knowledge Graph Database Visualizer</h1>
+        <div style="font-size: 12px; opacity: 0.9;">Source: O'Reilly AI Engineering (First 3 Pages)</div>
+    </div>
+    <div id="container">
+        <div id="mynetwork"></div>
+        <div id="details">
+            <h2>Graph Elements</h2>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #8cc3ff;"></div>
+                    <span>Sequential Edge (next_chunk)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #f5b041;"></div>
+                    <span>Shared Entity Edge (shared_entity)</span>
+                </div>
+            </div>
+            
+            <div id="info-box">
+                <div class="node-info">
+                    <strong>Click on any node (document chunk)</strong> in the graph to view its extracted text contents, page segment, and entities extracted.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        // Create nodes array
+        var nodes = new vis.DataSet([
+            { id: 1, label: "Chunk 1", title: "Chip Huyen  AI Engineering Building Applications...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "Chip Huyen\n AI Engineering\nBuilding Applications \nwith Foundation Models\n\n9\n7 8 1 0 9 8 1 6 6 3 0 4\n5 7 9 9 9\nISBN:   978-1-098-16630-4\nUS $79.99	   CAN $99.99\nDATA\nFoundation models have enabled many new AI use cases while lowering the barriers to entry for \nbuilding AI products. This has transformed AI from an esoteric discipline into a powerful development \ntool that anyone can use—including those with no prior AI experience.\nIn this accessibl", entities: ["Chip Huyen (PERSON)", "AI (TECHNOLOGY)", "anyone (PERSON)"] },
+            { id: 2, label: "Chunk 2", title: "ose with no prior AI experience. In this accessibl...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "ose with no prior AI experience.\nIn this accessible guide, author Chip Huyen discusses AI engineering: the process of building applications \nwith readily available foundation models. AI application developers will discover how to navigate \nthe AI landscape, including models, datasets, evaluation benchmarks, and the seemingly infinite number \nof application patterns. The book also introduces a practical framework for developing an AI application", entities: ["Chip Huyen (PERSON)", "evaluation benchmarks (METRIC)", "AI (TECHNOLOGY)"] },
+            { id: 3, label: "Chunk 3", title: "tical framework for developing an AI application...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "tical framework for developing an AI application \nand efficiently deploying it.\n•	 Understand what AI engineering is and how it differs \nfrom traditional machine learning engineering\n•	 Learn the process for developing an AI application, the \nchallenges at each step, and approaches to address them\n•	 Explore various model adaptation techniques, including \nprompt engineering, RAG, finetuning, agents, and dataset \nengineering, and understand how an", entities: ["RAG (CONCEPT)", "finetuning (CONCEPT)", "prompt engineering (CONCEPT)", "AI engineering (TECHNOLOGY)"] },
+            { id: 4, label: "Chunk 4", title: "s, and dataset  engineering, and understand how an...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "s, and dataset \nengineering, and understand how and why they work\n•	 Examine the bottlenecks for latency and cost when serving \nfoundation models and learn how to overcome them\n•	 Choose the right model, metrics, data, and developmental \npatterns for your needs\n AI Engineering\n“This book of fers a comprehensive, well-structured guide to the essential \naspects of building generative AI systems. A must-read for any professional \nlooking to scale AI", entities: ["professional (PERSON)", "metrics (METRIC)", "AI (TECHNOLOGY)", "AI Engineering (TECHNOLOGY)"] },
+            { id: 5, label: "Chunk 5", title: "ust-read for any professional  looking to scale AI...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "ust-read for any professional \nlooking to scale AI across the enterprise.”\nVittorio Cretella, former global CIO at P&G and Mars\n“Chip Huyen gets generative AI. She is a remarkable teacher and writer \nwhose work has been instrumental in helping teams bring AI into production. \nDrawing on her deep expertise, AI Engineering is a comprehensive and \nholistic guide to building generative AI applications in production.”\n		Luke Metz, cocreator of ChatGPT", entities: ["Chip Huyen (PERSON)", "P&G and Mars (ORGANIZATION)", "AI (TECHNOLOGY)", "Luke Metz (PERSON)"] },
+            { id: 6, label: "Chunk 6", title: "in production.” 		Luke Metz, cocreator of ChatGPT,...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "in production.”\n		Luke Metz, cocreator of ChatGPT, former research manager at OpenAI\nChip Huyen works at the intersection \nof AI, data, and storytelling. Previously, \nshe was with Snorkel AI and NVIDIA, \nfounded an AI infrastructure startup \n(acquired), and taught machine \nlearning systems design at Stanford. \nHer book Designing Machine \nLearning Systems (O’Reilly) has been \ntranslated into over 10 languages.\n\nPraise for AI Engineering\nThis book", entities: ["Chip Huyen (PERSON)", "OpenAI (ORGANIZATION)", "AI (TECHNOLOGY)", "Stanford (ORGANIZATION)"] },
+            { id: 7, label: "Chunk 7", title: "10 languages.  Praise for AI Engineering This book...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "10 languages.\n\nPraise for AI Engineering\nThis book offers a comprehensive, well-structured guide to the essential\naspects of building generative AI systems. A must-read for any\nprofessional looking to scale AI across the enterprise.\n—Vittorio Cretella, former global CIO, P&G and Mars\nChip Huyen gets generative AI. On top of that, she is a remarkable teacher and writer\nwhose work has been instrumental in helping teams bring AI into production.\nDra", entities: ["AI (TECHNOLOGY)", "P&G (ORGANIZATION)", "Vittorio Cretella (PERSON)"] },
+            { id: 8, label: "Chunk 8", title: "tal in helping teams bring AI into production. Dra...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "tal in helping teams bring AI into production.\nDrawing on her deep expertise, AI Engineering serves as a comprehensive\nand holistic guide, masterfully detailing everything required to\ndesign and deploy generative AI applications in production.\n—Luke Metz, cocreator of ChatGPT,\nformer research manager at OpenAI\nEvery AI engineer building real-world applications should read this book. It’s a\nvital guide to end-to-end AI system design, from model de", entities: ["OpenAI (ORGANIZATION)", "AI (TECHNOLOGY)", "Luke Metz (PERSON)"] },
+            { id: 9, label: "Chunk 9", title: "uide to end-to-end AI system design, from model de...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "uide to end-to-end AI system design, from model development\nand evaluation to large-scale deployment and operation.\n—Andrei Lopatenko, Director Search and AI, Neuron7\nThis book serves as an essential guide for building AI products that can scale.\nUnlike other books that focus on tools or current trends that are constantly\nchanging, Chip delivers timeless foundational knowledge. Whether you’re\na product manager or an engineer, this book effectivel", entities: ["Chip (TECHNOLOGY)", "Neuron7 (ORGANIZATION)", "AI (TECHNOLOGY)", "Andrei Lopatenko (PERSON)"] },
+            { id: 10, label: "Chunk 10", title: "oduct manager or an engineer, this book effectivel...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "oduct manager or an engineer, this book effectively bridges the\ncollaboration gap between cross-functional teams, making it\na must-read for anyone involved in AI development.\n—Aileen Bui, AI Product Operations Manager, Google\n\nThis is the definitive segue into AI engineering from one of the greats of ML engineering!\nChip has seen through successful projects and careers at every stage of a company and\nfor the first time ever condensed her expertis", entities: ["AI (TECHNOLOGY)", "Google (ORGANIZATION)", "ML engineering (TECHNOLOGY)", "AI engineering (TECHNOLOGY)"] },
+            { id: 11, label: "Chunk 11", title: "and for the first time ever condensed her expertis...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "and\nfor the first time ever condensed her expertise for new AI Engineers entering the field.\n—swyx, Curator, AI.Engineer\nAI Engineering is a practical guide that provides the most up-to-date information on AI\ndevelopment, making it approachable for novice and expert leaders alike. This book\nis an essential resource for anyone looking to build robust and scalable AI systems.\n—Vicki Reyzelman, Chief AI Solutions Architect, Mave Sparks\nAI Engineerin", entities: ["AI (TECHNOLOGY)", "Vicki Reyzelman (PERSON)", "Mave Sparks (ORGANIZATION)", "swyx (PERSON)"] },
+            { id: 12, label: "Chunk 12", title: "AI Solutions Architect, Mave Sparks AI Engineering...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "AI Solutions Architect, Mave Sparks\nAI Engineering is a comprehensive guide that serves as an essential reference\nfor both understanding and implementing AI systems in practice.\n—Han Lee, Director—Data Science, Moody’s\nAI Engineering is an essential guide for anyone building software with Generative AI!\nIt demystifies the technology, highlights the importance of evaluation, and shares\nwhat should be done to achieve quality before starting with c", entities: ["evaluation (METRIC)", "Han Lee (PERSON)", "Generative AI (TECHNOLOGY)", "AI Engineering (TECHNOLOGY)"] },
+            { id: 13, label: "Chunk 13", title: "be done to achieve quality before starting with co...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "be done to achieve quality before starting with costly fine-tuning.\n—Rafal Kawala, Senior AI Engineering Director, 16 years of\nexperience working in a Fortune 500 company\n\nChip Huyen\nAI Engineering\nBuilding Applications with Foundation Models\n\n978-1-098-16630-4\n[LSI]\nAI Engineering\nby Chip Huyen\nCopyright © 2025 Developer Experience Advisory LLC. All rights reserved.\nPrinted in the United States of America.\nPublished by O’Reilly Media, Inc., 100", entities: ["O’Reilly Media, Inc. (ORGANIZATION)", "Developer Experience Advisory LLC (ORGANIZATION)", "AI Engineering (TECHNOLOGY)", "Rafal Kawala (PERSON)"] },
+            { id: 14, label: "Chunk 14", title: "of America. Published by O’Reilly Media, Inc., 100...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "of America.\nPublished by O’Reilly Media, Inc., 1005 Gravenstein Highway North, Sebastopol, CA 95472.\nO’Reilly books may be purchased for educational, business, or sales promotional use. Online editions are\nalso available for most titles (http://oreilly.com). For more information, contact our corporate/institu‐\ntional sales department: 800-998-9938 or corporate@oreilly.com.\nAcquisitions Editor: Nicole Butterfield\nIndexer: WordCo Indexing Services,", entities: ["O’Reilly Media, Inc. (ORGANIZATION)", "Nicole Butterfield (PERSON)"] },
+            { id: 15, label: "Chunk 15", title: "ole Butterfield Indexer: WordCo Indexing Services,...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "ole Butterfield\nIndexer: WordCo Indexing Services, Inc.\nDevelopment Editor: Melissa Potter\nInterior Designer: David Futato\nProduction Editor: Beth Kelly\nCover Designer: Karen Montgomery\nCopyeditor: Liz Wheeler\nIllustrator: Kate Dullea\nProofreader: Piper Editorial Consulting, LLC\nDecember 2024:\n First Edition\nRevision History for the First Edition\n2024-12-04: First Release\nSee http://oreilly.com/catalog/errata.csp?isbn=9781098166304 for release de", entities: ["Piper Editorial Consulting, LLC (ORGANIZATION)", "WordCo Indexing Services, Inc. (ORGANIZATION)", "Liz Wheeler (PERSON)", "Beth Kelly (PERSON)"] },
+            { id: 16, label: "Chunk 16", title: "talog/errata.csp?isbn=9781098166304 for release de...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "talog/errata.csp?isbn=9781098166304 for release details.\nThe O’Reilly logo is a registered trademark of O’Reilly Media, Inc. AI Engineering, the cover image, and\nrelated trade dress are trademarks of O’Reilly Media, Inc.\nThe views expressed in this work are those of the author and do not represent the publisher’s views.\nWhile the publisher and the author have used good faith efforts to ensure that the information and\ninstructions contained in thi", entities: ["O’Reilly Media, Inc. (ORGANIZATION)", "author (PERSON)"] },
+            { id: 17, label: "Chunk 17", title: "the information and instructions contained in this...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "the information and\ninstructions contained in this work are accurate, the publisher and the author disclaim all responsibility\nfor errors or omissions, including without limitation responsibility for damages resulting from the use of\nor reliance on this work. Use of the information and instructions contained in this work is at your own\nrisk. If any code samples or other technology this work contains or describes is subject to open source\nlicense", entities: ["the author (PERSON)", "publisher (ORGANIZATION)"] },
+            { id: 18, label: "Chunk 18", title: "ins or describes is subject to open source license...", color: '#1a73e8', font: { color: 'white' }, shape: 'dot', size: 25, text: "ins or describes is subject to open source\nlicenses or the intellectual property rights of others, it is your responsibility to ensure that your use\nthereof complies with such licenses and/or rights.", entities: [] },
+        ]);
+
+        // Create edges array
+        var edges = new vis.DataSet([
+            { from: 1, to: 2, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 2, to: 3, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 3, to: 4, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 4, to: 5, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 5, to: 6, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 6, to: 7, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 7, to: 8, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 8, to: 9, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 9, to: 10, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 10, to: 11, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 11, to: 12, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 12, to: 13, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 13, to: 14, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 14, to: 15, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 15, to: 16, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 16, to: 17, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 17, to: 18, label: "next", color: { color: '#8cc3ff' }, width: 2, dashes: true },
+            { from: 1, to: 2, label: "shared: AI, Chip Huyen", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 5, label: "shared: AI, Chip Huyen", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 6, label: "shared: AI, Chip Huyen", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 5, label: "shared: AI, Chip Huyen", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 6, label: "shared: AI, Chip Huyen", color: { color: '#f5b041' }, width: 4 },
+            { from: 5, to: 6, label: "shared: AI, Luke Metz, Chip Huyen", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 4, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 7, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 8, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 1, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 4, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 7, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 8, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 2, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 5, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 6, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 7, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 8, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 5, to: 7, label: "shared: Vittorio Cretella, AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 5, to: 8, label: "shared: Luke Metz, AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 5, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 5, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 5, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 6, to: 7, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 6, to: 8, label: "shared: OpenAI, Luke Metz, AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 6, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 6, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 6, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 7, to: 8, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 7, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 7, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 7, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 8, to: 9, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 8, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 8, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 9, to: 10, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 9, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 10, to: 11, label: "shared: AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 10, to: 3, label: "shared: AI engineering", color: { color: '#f5b041' }, width: 4 },
+            { from: 13, to: 4, label: "shared: AI Engineering", color: { color: '#f5b041' }, width: 4 },
+            { from: 13, to: 12, label: "shared: AI Engineering", color: { color: '#f5b041' }, width: 4 },
+            { from: 4, to: 12, label: "shared: AI Engineering", color: { color: '#f5b041' }, width: 4 },
+            { from: 8, to: 5, label: "shared: Luke Metz, AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 8, to: 6, label: "shared: OpenAI, Luke Metz, AI", color: { color: '#f5b041' }, width: 4 },
+            { from: 16, to: 13, label: "shared: O’Reilly Media, Inc.", color: { color: '#f5b041' }, width: 4 },
+            { from: 16, to: 14, label: "shared: O’Reilly Media, Inc.", color: { color: '#f5b041' }, width: 4 },
+            { from: 13, to: 14, label: "shared: O’Reilly Media, Inc.", color: { color: '#f5b041' }, width: 4 },
+        ]);
+
+        // Provide the data in the vis format
+        var container = document.getElementById('mynetwork');
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+        var options = {
+            nodes: {
+                borderWidth: 2,
+                borderWidthSelected: 4,
+                color: {
+                    border: '#1557b0',
+                    background: '#1a73e8',
+                    highlight: {
+                        border: '#1557b0',
+                        background: '#8ab4f8'
+                    }
+                }
+            },
+            edges: {
+                arrows: {
+                    to: { enabled: true, scaleFactor: 0.8 }
+                },
+                font: {
+                    size: 10,
+                    align: 'middle'
+                },
+                smooth: {
+                    type: 'cubicBezier',
+                    roundness: 0.5
+                }
+            },
+            physics: {
+                barnesHut: {
+                    gravitationalConstant: -3000,
+                    centralGravity: 0.3,
+                    springLength: 150,
+                    springConstant: 0.04
+                }
+            }
+        };
+
+        // Initialize network
+        var network = new vis.Network(container, data, options);
+
+        // Click handler
+        network.on("click", function (params) {
+            if (params.nodes.length > 0) {
+                var nodeId = params.nodes[0];
+                var nodeData = nodes.get(nodeId);
+                
+                var entsHtml = "";
+                if (nodeData.entities.length > 0) {
+                    entsHtml = "<h3>Extracted Entities</h3><div>";
+                    nodeData.entities.forEach(function(ent) {
+                        entsHtml += "<span class='entity-tag'>" + ent + "</span>";
+                    });
+                    entsHtml += "</div>";
+                } else {
+                    entsHtml = "<h3>Extracted Entities</h3><div style='color:gray; font-style:italic;'>No major entities extracted in this small chunk</div>";
+                }
+
+                var html = "<div class='node-info'>" +
+                           "<h2>Chunk Node " + nodeId + "</h2>" +
+                           "<h3>Text Context:</h3>" +
+                           "<p style='white-space: pre-wrap; font-size:12px; background:#f8f9fa; padding:10px; border-radius:4px; border:1px solid #e0e0e0;'>" + nodeData.text + "</p>" +
+                           entsHtml +
+                           "</div>";
+                
+                document.getElementById('info-box').innerHTML = html;
+            }
+        });
+    </script>
+</body>
+</html>
