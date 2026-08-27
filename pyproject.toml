@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "qvex"
-version = "0.3.0"
+version = "0.3.1"
 description = "A hyper-compressed graph-vector database for local GraphRAG and multi-agent pipelines."
 readme = "README.md"
 requires-python = ">=3.10"
