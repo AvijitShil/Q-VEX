@@ -28,14 +28,21 @@ logger = logging.getLogger("qvex.integrations.llamaindex")
 # ---------------------------------------------------------------------------
 try:
     from llama_index.core.vector_stores.types import (
-        BaseVectorStore,
         VectorStoreQuery,
         VectorStoreQueryResult,
     )
+    try:
+        from llama_index.core.vector_stores.types import BasePydanticVectorStore as _LlamaBaseStore
+    except ImportError:
+        try:
+            from llama_index.core.vector_stores.types import BaseVectorStore as _LlamaBaseStore
+        except ImportError:
+            from llama_index.core.vector_stores.types import VectorStore as _LlamaBaseStore
+
     from llama_index.core.schema import TextNode
 
     _HAS_LLAMA_INDEX = True
-    _BASE_CLASS = BaseVectorStore
+    _BASE_CLASS = _LlamaBaseStore
 except ImportError:
     _HAS_LLAMA_INDEX = False
     _BASE_CLASS = object  # type: ignore[assignment,misc]
@@ -66,13 +73,17 @@ class QVEXLlamaIndexStore(_BASE_CLASS):  # type: ignore[misc]
 
     def __init__(self, qvex: Any, **kwargs: Any) -> None:
         _require_llama_index()
-        self._qvex = qvex
         if _HAS_LLAMA_INDEX and hasattr(_BASE_CLASS, "__init__"):
             super().__init__(**kwargs)
+        object.__setattr__(self, "_qvex", qvex)
 
     @classmethod
     def class_name(cls) -> str:
         return "QVEXLlamaIndexStore"
+
+    @property
+    def client(self) -> Any:
+        return getattr(self, "_qvex", None)
 
     # ------------------------------------------------------------------
     # BaseVectorStore interface

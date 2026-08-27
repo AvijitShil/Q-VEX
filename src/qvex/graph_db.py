@@ -99,6 +99,18 @@ class GraphDB:
         ).fetchall()
         return [self._row_to_node(r) for r in rows]
 
+    def get_nodes_by_vector_indices(self, vector_indices: Sequence[int]) -> list[NodeData]:
+        """Batch-fetch nodes by their vector indices."""
+        if not vector_indices:
+            return []
+        placeholders = ",".join("?" for _ in vector_indices)
+        rows = self._conn.execute(
+            f"SELECT id, text, vector_idx, metadata, is_deleted, created_at "
+            f"FROM nodes WHERE vector_idx IN ({placeholders})",
+            tuple(vector_indices),
+        ).fetchall()
+        return [self._row_to_node(r) for r in rows]
+
     def update_node(
         self,
         node_id: int,
@@ -142,6 +154,13 @@ class GraphDB:
         if deleted:
             logger.debug("Deleted node %d", node_id)
         return deleted
+
+    def clear(self) -> None:
+        """Truncate all nodes and edges from the graph database."""
+        with self._lock:
+            self._conn.execute("DELETE FROM edges")
+            self._conn.execute("DELETE FROM nodes")
+            self._conn.commit()
 
     # ------------------------------------------------------------------
     # Edge operations

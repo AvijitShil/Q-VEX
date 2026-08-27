@@ -163,6 +163,13 @@ class QVEX:
         logger.info("Deleted doc_id=%d (vec_idx=%s)", doc_id, node.vector_idx)
         return True
 
+    def clear(self) -> None:
+        """Clear all nodes, edges, and vectors in the database."""
+        with self._lock:
+            self._graph.clear()
+            self._vectors.clear()
+        logger.info("Cleared all data from database.")
+
     def update(
         self,
         doc_id: int,
@@ -240,11 +247,22 @@ class QVEX:
         list[SearchResult]
             Ranked search results with scores and metadata.
         """
-        # Step 1: BM25 text search
-        bm25_ids = self._graph.bm25_search(query, limit=bm25_k)
+        # Step 1: BM25 text search (with vector seed fallback)
+        bm25_ids: list[int] = []
+        if query and query.strip():
+            bm25_ids = self._graph.bm25_search(query, limit=bm25_k)
+
         if not bm25_ids:
-            logger.debug("search: no BM25 hits for '%s'", query)
-            return []
+            # Semantic fallback: seed from vector search
+            vec_seed_results = self._vectors.search(vector, k=min(bm25_k, max(k, 10)))
+            if not vec_seed_results:
+                logger.debug("search: no seed hits found for query='%s'", query)
+                return []
+            vec_indices = [idx for idx, _ in vec_seed_results]
+            seed_nodes = self._graph.get_nodes_by_vector_indices(vec_indices)
+            bm25_ids = [n.id for n in seed_nodes]
+            if not bm25_ids:
+                return []
 
         # Track which nodes were direct BM25 hits (hop 0)
         bm25_set = set(bm25_ids)

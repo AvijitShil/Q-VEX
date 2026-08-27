@@ -5,13 +5,8 @@ import numpy as np
 try:
     from langchain_core.tools import tool
 except ImportError:
-    # Dummy decorator if langchain is not installed
-    def tool(name=None, description=None):
-        def decorator(func):
-            func.name = name
-            func.description = description
-            return func
-        return decorator
+    def tool(func: Callable) -> Callable:
+        return func
 
 class QVEXSemanticMemorySaver:
     """LangGraph Semantic Memory Saver for long-term episodic memory extraction."""
@@ -42,20 +37,22 @@ class QVEXSemanticMemorySaver:
     def as_retriever_tool(
         self, 
         name: str = "memory_retrieval", 
-        description: str = "Search long-term semantic episodic memory for related facts or past context."
+        description: str = "Search long-term semantic episodic memory for related facts or past context.",
+        k: int = 3,
+        hops: int = 2,
     ) -> Callable:
         """Returns a LangGraph/LangChain compatible Tool for querying this memory."""
         
-        # We define a function closure and wrap it with the tool decorator.
-        # This will be recognized as a valid Tool by langgraph agents.
-        
-        @tool(name=name, description=description)
         def memory_tool(query: str) -> str:
-            results = self.retrieve_memory(query)
+            results = self.retrieve_memory(query, k=k, hops=hops)
             if not results:
                 return "No relevant memories found."
-            
-            # Combine retrieved contexts into a string for the agent
             return "\n\n".join([f"Memory (Score {r['score']:.2f}): {r['content']}" for r in results])
-            
-        return memory_tool
+
+        memory_tool.__name__ = name
+        memory_tool.__doc__ = description
+
+        try:
+            return tool(memory_tool)
+        except Exception:
+            return memory_tool

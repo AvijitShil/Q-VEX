@@ -181,6 +181,14 @@ class VectorStore:
             self.deleted_ids.add(vector_idx)
         logger.debug("Soft-deleted vector index %d", vector_idx)
 
+    def clear(self) -> None:
+        """Clear all vectors from the index."""
+        with self._lock:
+            from turbovec import TurboQuantIndex
+            self._index = TurboQuantIndex(dim=self.dim, bit_width=self.bit_width)
+            self.deleted_ids.clear()
+            self._next_index = 0
+
     # ------------------------------------------------------------------
     # Persistence
     # ------------------------------------------------------------------

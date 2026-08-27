@@ -19,7 +19,7 @@ class QVEXCrewAIMemoryStorage:
         self.qvex.add(text=text, vector=vector, metadata=meta)
 
     def search(
-        self, query: str, limit: int = 3, score_threshold: float = 0.35
+        self, query: str, limit: int = 3, score_threshold: Optional[float] = None
     ) -> List[Dict[str, Any]]:
         if self.embed_fn:
             query_vec = np.array(self.embed_fn(query), dtype=np.float32)
@@ -30,7 +30,7 @@ class QVEXCrewAIMemoryStorage:
         
         output = []
         for r in results:
-            if r.score >= score_threshold:
+            if score_threshold is None or r.score >= score_threshold:
                 output.append({
                     "id": r.id,
                     "context": r.text,
@@ -42,3 +42,8 @@ class QVEXCrewAIMemoryStorage:
     def reset(self) -> None:
         if hasattr(self.qvex, "clear"):
             self.qvex.clear()
+        else:
+            if hasattr(self.qvex, "_graph"):
+                self.qvex._graph.clear()
+            if hasattr(self.qvex, "_vectors"):
+                self.qvex._vectors.clear()
